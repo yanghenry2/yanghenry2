@@ -61,6 +61,15 @@ jobs:
             return context.payload.ref.replace(/\/refs\/tags\//, '');
       - name: Echo
         run: echo ${{ steps.tag.outputs.result }}
+      - name: Create an incremental release
+        uses: aurestic/incrementarl-create-release@master
+        with:
+            flag_branch: true
+            message: Bump version
+            prev_tag: 'v'
+            update_odoo_module_version: true
+        env:
+            GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
