@@ -5,8 +5,10 @@ name: Push a new tag with Pull Request
 # This is the test
 #############################
 on:
-  release:
-    types: [ published ]
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [master, main]
   workflow_dispatch:
 
 jobs:
