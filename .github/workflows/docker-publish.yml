@@ -13,7 +13,13 @@ jobs:
   test-github:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 20
+          fetch-tags: true
+          token: ${{ secrets.GH_TOKEN }}
       - name: Set output
         id: vars
         run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
@@ -50,7 +56,7 @@ jobs:
         id: tag
         uses: actions/github-script@0.2.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             return context.payload.ref.replace(/\/refs\/tags\//, '');
       - name: Echo
