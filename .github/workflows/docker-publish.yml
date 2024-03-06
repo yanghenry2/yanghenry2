@@ -1,7 +1,8 @@
 name: Push a new tag with Pull Request
 
 #############################
-# Start the job on all push #
+# Start the job on all push
+# This is the test
 #############################
 on:
   push:
