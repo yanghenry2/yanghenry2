@@ -31,13 +31,13 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
-      - name: GitHub Tag Name example-1
+      - name: GitHub Tag Name example
         run: |
           echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
           echo "Tag name from github.ref_name: ${{  github.ref_name }}"
           echo "GITHUB REF: $GITHUB_REF"
           echo "GITHUB REF2: ${GITHUB_REF##*/}"
-      - name: GitHub Tag Name example-2
+      - name: GitHub Tag Name example-new
         id: cur_git_tag
         run: |
           echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_OUTPUT
