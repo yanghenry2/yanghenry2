@@ -58,32 +58,22 @@ jobs:
         id: tag
         uses: actions/github-script@0.2.0
         with:
-          github-token: ${{ secrets.GH_TOKEN }}
-          script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '');
+          github-token: ${{ secrets.CMOB_GHE_AUTOMATION_GHA_WORKFLOW_TOKEN }}
+        run: |
+          echo "TAG_NAME=$(context.payload.ref.replace(/\/refs\/tags\//, '')"
       - name: Echo
-        run: echo ${{ steps.tag.outputs.result }}
-      - name: Create an incremental release
-        uses: aurestic/incrementarl-create-release@master
-        with:
-            flag_branch: true
-            message: Bump version
-            prev_tag: 'v'
-            update_odoo_module_version: true
-        env:
-            GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: echo ${{ steps.tag.outputs.TAG_NAME }}
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-      - name: Get the version2
-        id: get_version2
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: |
+          echo "VERSION_NAME=$(echo $GITHUB_REF | cut -d / -f 3)"
+          echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}"
       - name: Branch name
         id: branch_name
         run: |
-          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
-          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
-          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}"
+          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}"
+          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
       - name: Build base image
         run: |
           echo $SOURCE_NAME
@@ -93,3 +83,5 @@ jobs:
           SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
           SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+          VERSION_NAME: ${{ steps.get_version.outputs.VERSION_NAME }}
+          VERSION_TAG: ${{ steps.get_version.outputs.VERSION_TAG }}
