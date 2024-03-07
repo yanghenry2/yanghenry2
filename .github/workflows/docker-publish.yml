@@ -54,19 +54,17 @@ jobs:
         run: |
           git fetch --tags
           echo "Tags fetched"
-      - name: Echo
-        run: echo ${{ steps.tag.outputs.TAG_NAME }}
       - name: Get the version
         id: get_version
         run: |
-          echo "VERSION_NAME=$(echo $GITHUB_REF | cut -d / -f 3)"
-          echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}"
+          echo "VERSION_NAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
+          echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
       - name: Branch name
         id: branch_name
         run: |
-          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}"
-          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}"
-          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
+          echo "SOURCE_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+          echo "SOURCE_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Build base image
         run: |
           echo $SOURCE_NAME
