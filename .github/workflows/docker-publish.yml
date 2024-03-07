@@ -54,10 +54,6 @@ jobs:
         run: |
           git fetch --tags
           echo "Tags fetched"
-      - name: Extract tag name
-        id: tag
-        run: |
-          echo "TAG_NAME=$(context.payload.ref.replace(/\/refs\/tags\//, '')"
       - name: Echo
         run: echo ${{ steps.tag.outputs.TAG_NAME }}
       - name: Get the version
