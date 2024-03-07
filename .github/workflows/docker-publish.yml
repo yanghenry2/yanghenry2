@@ -54,13 +54,6 @@ jobs:
         run: |
           git fetch --tags
           echo "Tags fetched"
-      - name: Extract tag name
-        id: tag
-        uses: actions/github-script@0.2.0
-        with:
-          github-token: ${{ secrets.CMOB_GHE_AUTOMATION_GHA_WORKFLOW_TOKEN }}
-        run: |
-          echo "TAG_NAME=$(context.payload.ref.replace(/\/refs\/tags\//, '')"
       - name: Echo
         run: echo ${{ steps.tag.outputs.TAG_NAME }}
       - name: Get the version
