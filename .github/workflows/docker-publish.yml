@@ -61,6 +61,7 @@ jobs:
           echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
           echo "PR_TAG=$(echo $GITHUB_HEAD_REF | sed 's|refs/heads/||')" >> $GITHUB_OUTPUT
           echo "CONV_PR_TAG=$(echo $GITHUB_HEAD_REF)" >> $GITHUB_OUTPUT
+          echo "EVENT_NAME=$(echo $GITHUB_EVENT_NAME)" >> $GITHUB_OUTPUT
       - name: Branch name
         id: branch_name
         run: |
@@ -76,6 +77,7 @@ jobs:
           echo $VERSION_TAG
           echo $PR_TAG
           echo $CONV_PR_TAG
+          echo $EVENT_NAME
         env:
           SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
           SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
@@ -84,3 +86,4 @@ jobs:
           VERSION_TAG: ${{ steps.get_version.outputs.VERSION_TAG }}
           PR_TAG: ${{ steps.get_version.outputs.PR_TAG }}
           CONV_PR_TAG: ${{ steps.get_version.outputs.CONV_PR_TAG }}
+          EVENT_NAME: ${{ steps.get_version.outputs.EVENT_NAME }}
