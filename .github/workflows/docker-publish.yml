@@ -89,7 +89,7 @@ jobs:
           EVENT_NAME: ${{ steps.get_version.outputs.EVENT_NAME }}
       - name: Test IF Statement
         run: |
-          if: ${{ ! startsWith(GITHUB_EVENT_NAME, 'pull_request') }} then
+          if: ${{ ! startsWith($GITHUB_EVENT_NAME, 'pull_request') }} then
             echo $PR_TAG
           else
             echo $VERSION_NAME
