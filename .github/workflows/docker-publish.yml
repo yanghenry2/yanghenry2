@@ -87,3 +87,10 @@ jobs:
           PR_TAG: ${{ steps.get_version.outputs.PR_TAG }}
           CONV_PR_TAG: ${{ steps.get_version.outputs.CONV_PR_TAG }}
           EVENT_NAME: ${{ steps.get_version.outputs.EVENT_NAME }}
+      - name: Test IF Statement
+        run: |
+          if [ $EVENT_NAME == "pull_request" ]; then
+            echo $PR_TAG
+          else
+            echo $VERSION_NAME
+          fi
