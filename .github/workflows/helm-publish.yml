@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           if [ "$CURRENT_BRANCH_TAG" == "" ]; then
-            echo "branch tag is empty"
+            echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${CURRENT_CHART_VER}-1" >> $GITHUB_OUTPUT
           elif [ $CURRENT_CHART_VER > $CURRENT_BRANCH_TAG ]; then
             echo "USE Current chart version"
           else
@@ -73,10 +73,22 @@ jobs:
           CURRENT_BRANCH_TAG: ${{ steps.cur_git_tag.outputs.tag_name }}
           CURRENT_CHART_VER: ${{ steps.cur_git_tag.outputs.chart_ver }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+          HELM_TAG_PREFIX: "build"
         id: get_chart_version
 
       - name: Check next helm chart version output
         run: |
-          echo $CURRENT_CHART_VER
-          echo $CURRENT_BRANCH_TAG
-          echo $BRANCH_NAME
+          echo "Next Helm Tag:"${{ steps.get_chart_version.outputs.helm_next_tag }}
+
+      ##########################
+      # Push new tag      #
+      ##########################
+      - name: Push new tag
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.get_chart_version.outputs.helm_next_tag }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
