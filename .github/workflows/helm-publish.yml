@@ -71,7 +71,7 @@ jobs:
             echo "TAG_BUILD:"$TAGGED_MAJOR_MINOR_PATCH_BUILD
             echo "version:"$TAGGED_MAJOR_MINOR_PATCH
             if [ "$TAGGED_MAJOR_MINOR_PATCH" ==  "$CURRENT_CHART_VER" ]; then
-              BUILD_NUMBER=$( $(TAGGED_BUILD) + 1 );
+              BUILD_NUMBER=$( $TAGGED_BUILD + 1 );
               echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-$BUILD_NUMBER" >> $GITHUB_OUTPUT
             fi
             
