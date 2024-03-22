@@ -15,8 +15,9 @@ on:
     branches:
       - main
       - feature/**
-    paths:
-      - 'ps-qoe-apps/**'
+#    paths:
+#      - 'ps-qoe-apps/**'
+  workflow_dispatch:
 
 jobs:
   helm-publish:
@@ -61,7 +62,7 @@ jobs:
         working-directory: .
         shell: bash
         run: |
-          if [ $CURRENT_BRANCH_TAG == '' ]; then
+          if [ "$CURRENT_BRANCH_TAG" == "" ]; then
             echo "branch tag is empty"
           elif [ $CURRENT_CHART_VER > $CURRENT_BRANCH_TAG ]; then
             echo "USE Current chart version"
