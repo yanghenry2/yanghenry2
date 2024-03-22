@@ -67,6 +67,8 @@ jobs:
           else
             TAGGED_MAJOR_MINOR_PATCH_BUILD=$(echo $CURRENT_BRANCH_TAG | awk -F-v '{if (NF==1) {print ""} else {print $$(NF)}}');
             TAGGED_MAJOR_MINOR_PATCH=$(echo $(TAGGED_MAJOR_MINOR_PATCH_BUILD) | awk -F- '{print $$1}');
+            echo "TAG_BUILD:"$TAGGED_MAJOR_MINOR_PATCH_BUILD
+            echo "version:"$TAGGED_MAJOR_MINOR_PATCH
             echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-2" >> $GITHUB_OUTPUT
           fi
         env:
