@@ -70,7 +70,7 @@ jobs:
           fi
         env:
           CURRENT_BRANCH_TAG: ${{ steps.cur_git_tag.outputs.tag_name }}
-          CURRENT_CHART_VER: "${{ steps.cur_git_tag.outputs.chart_ver }}
+          CURRENT_CHART_VER: ${{ steps.cur_git_tag.outputs.chart_ver }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
         id: get_chart_version
 

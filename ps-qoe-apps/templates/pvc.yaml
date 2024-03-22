@@ -1,0 +1,19 @@
+---
+{{- range $volume := .Values.volumes }}
+{{- $type := $volume.storageClassType -}}
+{{- if $volume.storageClassName }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-%s" $volume.claimName $.Release.Name | lower }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  accessModes:
+  {{ $volume.accessModes | toYaml }}
+  storageClassName: {{ $volume.storageClassName }}
+  resources:
+    requests:
+      storage: {{ $volume.storage }}
+---
+{{- end }}
+{{- end }}

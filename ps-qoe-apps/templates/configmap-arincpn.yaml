@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-arincpn
+  namespace: viasat
+  labels:
+    type: arincpn
+  annotations:
+    arincpn: "{{ .Values.arincpn }}"
+    chartname: "{{ .Chart.Name }}"
+    chartdescription: "{{ .Chart.Description }}"
+    charttype: "{{ .Chart.Type }}"
+    chartversion: "{{ .Chart.Version }}"
+    chartappversion: "{{ .Chart.AppVersion }}"
+data:
+  arincpn: "{{ .Values.arincpn }}"
+  chartname: "{{ .Chart.Name }}"
+  chartdescription: "{{ .Chart.Description }}"
+  charttype: "{{ .Chart.Type }}"
+  chartversion: "{{ .Chart.Version }}"
+  chartappversion: "{{ .Chart.AppVersion }}"

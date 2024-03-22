@@ -1,0 +1,115 @@
+# Default values for ps-qoe-apps.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# nameOverride: "airline specific name"
+deployment:
+  replicas: 1
+  strategy: RollingUpdate
+  imagePullSecrets: []
+  # - name: image-pull-secret-name
+  # securityContext: {}
+  # containers:
+    # example-container-name:
+    #   image:
+    #     repository: "dal/main/eqoe_client_combined"
+    #     tag: "2.0.0"
+    #   imagePullPolicy: IfNotPresent # IfNotPresent, Always, Never
+    #   externalSecretsEnvs:
+    #     - name: secretName
+    #   ports:
+    #     - name: web
+    #       containerPort: 8000
+    #       protocol: TCP
+    #   securityContext: {}
+    #   readinessProbe: {}
+    #     # enabled: true
+    #     # path: /
+    #     # port: 8000
+    #     # settings:
+    #     #   initialDelaySeconds: 5
+    #     #   periodSeconds: 10
+    #     #   successThreshold: 1
+    #     #   timeoutSeconds: 3
+    #     #   failureThreshold: 3
+    #   livenessProbe: {}
+    #     # enabled: true
+    #     # path: /
+    #     # port: 8000
+    #     # settings:
+    #     #   initialDelaySeconds: 5
+    #     #   periodSeconds: 10
+    #     #   successThreshold: 1
+    #     #   timeoutSeconds: 3
+    #     #   failureThreshold: 3
+    #   resources:
+    #     limits:
+    #       cpu: "213m"
+    #       memory: "512Mi"
+    #     requests:
+    #       cpu: "106m"
+    #       memory: "256Mi"
+    #   volumeMounts:
+    #   # - name: cache-volume-qoe
+    #   #   mountPath: /eqoe_data/
+    #   #   subPath: eqoe_combined_data
+
+volumes: []
+  # - name: cache-volume-qoe
+  #   claimName: cache-qoe-claim-v2
+  #   accessModes:
+  #     - ReadWriteOnce
+  #   storageClassName: local-path-data-airline
+  #   storage: 5G
+
+configMap: {}
+  # foo: bar
+
+# externalNames:
+# - externalName: 172.19.0.1
+#  port: 923
+#  ingressHostname:
+#  paths:
+#  - ""
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+externalSecrets: {}
+
+ingress: {}
+
+kong:
+  proxyIP: 172.16.128.1
+
+# List of additional secrets to define. Highly recommend the use of ExternalSecrets
+Secrets: []
+# - name: msi-api-key-secret
+  # type: Opaque
+  # data:
+    # key: value
+
+# Include network policy spec below
+networkPolicies: {}
+
+# ARINC Part Number
+arincpn: "VIS5E-GM01-RK66"
+
+service:
+  ports:
+    - name: http
+      protocol: TCP
+      targetPort: 80
+      port: 80
+    - name: https
+      protocol: TCP
+      targetPort: 80
+      port: 443

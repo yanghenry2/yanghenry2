@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "robustName" .Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "ps-qoe-apps.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ps-qoe-apps.selectorLabels" . | nindent 6 }}
+  {{- $singleReplica := eq (.Values.deployment.replicas | int64) 1 }}
+  {{- $strategyNotDefined := not .Values.deployment.strategy }}
+  {{- if and (and .Values.volumes $singleReplica) $strategyNotDefined}}
+  strategy:
+    type: Recreate
+  {{- end }}
+  {{- if .Values.deployment.strategy }}
+  strategy:
+    type: {{ .Values.deployment.strategy }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        cni.projectcalico.org/ipv4pools: "[\"mpp-ippool\"]"
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "ps-qoe-apps.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.deployment.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext}}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "robustName" .Release.Name }}
+      containers:
+        {{- range $k, $v := .Values.deployment.containers }}
+        - name: {{ template "robustName" $k }}
+          {{- if $v.env }}
+          env:
+            {{- toYaml $v.env | nindent 12 }}
+          {{- end }}
+          {{- if $v.envFrom }}
+          envFrom:
+            {{- toYaml $v.envFrom | nindent 12 }}
+          {{- end }}
+          image: "{{ $v.image.repository }}:{{ $v.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $v.image.pullPolicy | default "IfNotPresent" }}
+          {{- if $v.lifecycle }}
+          lifecycle:
+            {{- toYaml $v.lifecycle | nindent 12 }}
+          {{- end }}
+          {{- with $v.ports }}
+          ports:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml $v.securityContext | nindent 12 }}
+          {{- if $v.readinessProbe }}
+          readinessProbe:
+            {{- toYaml $v.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if $v.livenessProbe }}
+          livenessProbe:
+            {{- toYaml $v.livenessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml $v.resources | nindent 12 }}
+          {{- with $v.volumeMounts }}
+          volumeMounts:
+            {{- toYaml $v.volumeMounts | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      volumes:
+        - name: hostfs
+          hostPath:
+            path: "/proc"
+        {{- range $volume := .Values.volumes }}
+        {{- if $volume.emptyDir }}
+        - name: {{ $volume.name }}
+          emptyDir:
+            sizeLimit: {{ $volume.sizeLimit }}
+        {{- else }}
+        - name: {{ $volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-%s" $volume.claimName $.Release.Name | lower }}
+        {{- end }}
+        {{- end }}
+      {{- with .Values.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
