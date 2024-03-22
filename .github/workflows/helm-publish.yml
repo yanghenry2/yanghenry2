@@ -41,33 +41,33 @@ jobs:
         run: |
           echo "branch_name=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT 
 
-      ##########################
-      # current tag name       #
-      ##########################
-      - name: Current tag
+      ############################################
+      # current tag name and chart version       #
+      ############################################
+      - name: Current tag and chart version
         id: cur_git_tag
         run: |
           echo "tag_name=$(git describe --tags --match '*-${{ steps.branch.outputs.branch_name }}-v*' --abbrev=0)" >> $GITHUB_OUTPUT
           echo "chart_ver=$(grep 'version:' ps-qoe-apps/Chart.yaml | awk -F: '{print $2}' | sed -e 's/^[[:space:]]*//')" >> $GITHUB_OUTPUT
 
-      - name: Check Git Tag output
+      - name: Check tag and chart version output
         run: |
           echo "Current Tag:"${{ steps.cur_git_tag.outputs.tag_name }}
           echo "Current Chart Version:"${{ steps.cur_git_tag.outputs.chart_ver }}
 
       ##########################
-      # Chart Version          #
+      # Next Helm Tag          #
       ##########################
-      - name: Fetching the chart version
+      - name: Fetching the next helm tag
         working-directory: .
         shell: bash
         run: |
           if [ "$CURRENT_BRANCH_TAG" == "" ]; then
             echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${CURRENT_CHART_VER}-1" >> $GITHUB_OUTPUT
-          elif [ $CURRENT_CHART_VER > $CURRENT_BRANCH_TAG ]; then
-            echo "USE Current chart version"
           else
-            echo "Use CURRENT_BRANCH_TAG"
+            TAGGED_MAJOR_MINOR_PATCH_BUILD=$(echo $CURRENT_BRANCH_TAG | awk -F-v '{if (NF==1) {print ""} else {print $$(NF)}}');
+            TAGGED_MAJOR_MINOR_PATCH=$(echo $(TAGGED_MAJOR_MINOR_PATCH_BUILD) | awk -F- '{print $$1}'))
+            echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-2" >> $GITHUB_OUTPUT
           fi
         env:
           CURRENT_BRANCH_TAG: ${{ steps.cur_git_tag.outputs.tag_name }}
