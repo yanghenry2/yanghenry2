@@ -68,13 +68,13 @@ jobs:
             TAGGED_MAJOR_MINOR_PATCH_BUILD=$(echo $CURRENT_BRANCH_TAG | awk -F-v '{print $(NF)}');
             TAGGED_MAJOR_MINOR_PATCH=$(echo $TAGGED_MAJOR_MINOR_PATCH_BUILD | awk -F- '{print $1}');
             TAGGED_BUILD=$(echo $TAGGED_MAJOR_MINOR_PATCH_BUILD | awk -F- '{print $(NF)}');
-            echo "TAG_WITH_BUILD:"$TAGGED_MAJOR_MINOR_PATCH_BUILD
-            echo "version:"$TAGGED_MAJOR_MINOR_PATCH
-            echo "TAG_BUILD:"$TAGGED_BUILD
+            echo "TAG_WITH_BUILD:"$TAGGED_MAJOR_MINOR_PATCH_BUILD;
+            echo "version:"$TAGGED_MAJOR_MINOR_PATCH;
+            echo "TAG_BUILD:"$TAGGED_BUILD;
             if [ "$TAGGED_MAJOR_MINOR_PATCH" ==  "$CURRENT_CHART_VER" ]; then
               BUILD_NUMBER=$(( $TAGGED_BUILD + 1 ));
               echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-$BUILD_NUMBER" >> $GITHUB_OUTPUT   
-            elif [ "$CURRENT_CHART_VER" -gt "$TAGGED_MAJOR_MINOR_PATCH" ]
+            elif [ "$CURRENT_CHART_VER" -gt "$TAGGED_MAJOR_MINOR_PATCH" ]; then
               echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${CURRENT_CHART_VER}-1" >> $GITHUB_OUTPUT
             else
               echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-$BUILD_NUMBER" >> $GITHUB_OUTPUT  
