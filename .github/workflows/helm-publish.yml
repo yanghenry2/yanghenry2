@@ -73,8 +73,7 @@ jobs:
             if [ "$TAGGED_MAJOR_MINOR_PATCH" ==  "$CURRENT_CHART_VER" ]; then
               BUILD_NUMBER=$( $TAGGED_BUILD + 1 );
               echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-$BUILD_NUMBER" >> $GITHUB_OUTPUT
-            fi
-            
+            fi  
           fi
         env:
           CURRENT_BRANCH_TAG: ${{ steps.cur_git_tag.outputs.tag_name }}
