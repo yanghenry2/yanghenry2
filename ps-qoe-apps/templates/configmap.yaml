@@ -1,0 +1,21 @@
+---
+{{- if .Values.configMap }}
+{{- range $configMap := .Values.configMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  {{- if $configMap.name }}
+  name: {{ printf "%s-%s" (include "robustName" $.Release.Name) $configMap.name }}
+  {{- else }}
+  name: {{ printf "%s" (include "robustName" $.Release.Name) }}
+  {{- end }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "ps-qoe-apps.labels" $ | nindent 4 }}
+data:
+{{- range $key, $val := $configMap.config }}
+  {{ $key }}: {{ $val | quote }}
+{{- end }}
+---
+{{- end }}
+{{- end }}

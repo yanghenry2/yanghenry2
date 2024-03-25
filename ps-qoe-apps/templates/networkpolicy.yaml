@@ -1,0 +1,15 @@
+{{- if .Values.networkPolicies }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "robustName" .Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "ps-qoe-apps.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    # Only apply this policy to the pods deployed by this helm chart
+    matchLabels:
+      {{- include "ps-qoe-apps.selectorLabels" . | nindent 6 }}
+{{- toYaml .Values.networkPolicies | nindent 2 }}
+{{- end }}

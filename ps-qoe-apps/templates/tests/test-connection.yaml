@@ -1,0 +1,16 @@
+{{- $releaseName := include "robustName" $.Release.Name }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ printf "%s-test-connection" (include "robustName" .Release.Name) }}
+  namespace: {{ $.Release.Namespace }}
+  labels: {{- include "ps-qoe-apps.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: {{ printf "['%s:80']" $releaseName }}
+  restartPolicy: Never

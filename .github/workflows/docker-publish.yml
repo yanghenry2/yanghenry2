@@ -7,8 +7,8 @@ name: Push a new tag with Pull Request
 on:
   push:
     branches: [ master, main ]
-  pull_request:
-    branches: [master, main]
+#  pull_request:
+#    branches: [master, main]
   workflow_dispatch:
 
 jobs:
@@ -31,13 +31,13 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
-      - name: GitHub Tag Name example-1
+      - name: GitHub Tag Name example
         run: |
           echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
           echo "Tag name from github.ref_name: ${{  github.ref_name }}"
           echo "GITHUB REF: $GITHUB_REF"
           echo "GITHUB REF2: ${GITHUB_REF##*/}"
-      - name: GitHub Tag Name example-2
+      - name: GitHub Tag Name example-new
         id: cur_git_tag
         run: |
           echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_OUTPUT
@@ -59,6 +59,9 @@ jobs:
         run: |
           echo "VERSION_NAME=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
           echo "VERSION_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+          echo "PR_TAG=$(echo $GITHUB_HEAD_REF | sed 's|refs/heads/||')" >> $GITHUB_OUTPUT
+          echo "CONV_PR_TAG=$(echo $GITHUB_HEAD_REF)" >> $GITHUB_OUTPUT
+          echo "EVENT_NAME=$(echo $GITHUB_EVENT_NAME)" >> $GITHUB_OUTPUT
       - name: Branch name
         id: branch_name
         run: |
@@ -72,9 +75,24 @@ jobs:
           echo $SOURCE_TAG
           echo $VERSION_NAME
           echo $VERSION_TAG
+          echo $PR_TAG
+          echo $CONV_PR_TAG
+          echo $EVENT_NAME
         env:
           SOURCE_NAME: ${{ steps.branch_name.outputs.SOURCE_NAME }}
           SOURCE_BRANCH: ${{ steps.branch_name.outputs.SOURCE_BRANCH }}
           SOURCE_TAG: ${{ steps.branch_name.outputs.SOURCE_TAG }}
           VERSION_NAME: ${{ steps.get_version.outputs.VERSION_NAME }}
           VERSION_TAG: ${{ steps.get_version.outputs.VERSION_TAG }}
+          PR_TAG: ${{ steps.get_version.outputs.PR_TAG }}
+          CONV_PR_TAG: ${{ steps.get_version.outputs.CONV_PR_TAG }}
+          EVENT_NAME: ${{ steps.get_version.outputs.EVENT_NAME }}
+      - name: Test IF Statement
+        run: |
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            echo "This is a pull request event"
+          elif [ ${{ github.event_name }} == 'push' ]; then
+            echo "This is a push event"
+          else
+            echo "This is an unknown event"
+          fi

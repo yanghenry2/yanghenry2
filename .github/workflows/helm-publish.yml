@@ -1,0 +1,100 @@
+---
+###########################
+###########################
+## Helm Publish GitHub Actions ##
+###########################
+###########################
+name: Helm Publish
+
+#############################
+# Start the job on all push #
+# main and feature branch   #
+#############################
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+#    paths:
+#      - 'ps-qoe-apps/**'
+  workflow_dispatch:
+
+jobs:
+  helm-publish:
+    runs-on:
+      - ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 20
+          fetch-tags: true
+          token: ${{ secrets.GH_TOKEN }}
+
+      ##########################
+      # Branch name            #
+      ##########################
+      - name: Branch name
+        id: branch
+        run: |
+          echo "branch_name=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT 
+
+      ############################################
+      # current tag name and chart version       #
+      ############################################
+      - name: Current tag and chart version
+        id: cur_git_tag
+        run: |
+          echo "tag_name=$(git describe --tags --match '*-${{ steps.branch.outputs.branch_name }}-v*' --abbrev=0)" >> $GITHUB_OUTPUT
+          echo "chart_ver=$(grep 'version:' ps-qoe-apps/Chart.yaml | awk -F: '{print $2}' | sed -e 's/^[[:space:]]*//')" >> $GITHUB_OUTPUT
+
+      - name: Check tag and chart version output
+        run: |
+          echo "Current Tag:"${{ steps.cur_git_tag.outputs.tag_name }}
+          echo "Current Chart Version:"${{ steps.cur_git_tag.outputs.chart_ver }}
+
+      ##########################
+      # Next Helm Tag          #
+      ##########################
+      - name: Fetching the next helm tag
+        working-directory: .
+        shell: bash
+        run: |
+          if [ "$CURRENT_BRANCH_TAG" == "" ]; then
+            echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${CURRENT_CHART_VER}-1" >> $GITHUB_OUTPUT
+          else
+            TAGGED_MAJOR_MINOR_PATCH_BUILD=$(echo $CURRENT_BRANCH_TAG | awk -F-v '{print $(NF)}');
+            TAGGED_MAJOR_MINOR_PATCH=$(echo $TAGGED_MAJOR_MINOR_PATCH_BUILD | awk -F- '{print $1}');
+            TAGGED_BUILD=$(echo $TAGGED_MAJOR_MINOR_PATCH_BUILD | awk -F- '{print $(NF)}');
+            if [ "$CURRENT_CHART_VER" \> "$TAGGED_MAJOR_MINOR_PATCH" ]; then
+              echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${CURRENT_CHART_VER}-1" >> $GITHUB_OUTPUT
+            else
+              BUILD_NUMBER=$(( $TAGGED_BUILD + 1 ));
+              echo "helm_next_tag=${HELM_TAG_PREFIX}-${BRANCH_NAME}-v${TAGGED_MAJOR_MINOR_PATCH}-$BUILD_NUMBER" >> $GITHUB_OUTPUT  
+            fi  
+          fi
+        env:
+          CURRENT_BRANCH_TAG: ${{ steps.cur_git_tag.outputs.tag_name }}
+          CURRENT_CHART_VER: ${{ steps.cur_git_tag.outputs.chart_ver }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+          HELM_TAG_PREFIX: "build"
+        id: get_chart_version
+
+      - name: Check next helm chart version output
+        run: |
+          echo "Next Helm Tag:"${{ steps.get_chart_version.outputs.helm_next_tag }}
+
+      ##########################
+      # Push new tag      #
+      ##########################
+      - name: Push new tag
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.get_chart_version.outputs.helm_next_tag }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
